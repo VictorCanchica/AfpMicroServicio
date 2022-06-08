@@ -1,6 +1,7 @@
 package com.AFP.AFP.controllers;
 
 import com.AFP.AFP.entity.DataAfpCliente;
+import com.AFP.AFP.repository.ICliente;
 import com.AFP.AFP.repository.IDataAfpCliente;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
@@ -19,6 +20,9 @@ import java.util.Optional;
 @RequestMapping("/General/DataAfp")
 
 public class DataAfpClienteController {
+
+    @Autowired
+    private ICliente icliente;
     @Autowired
     private IDataAfpCliente idata;
 
@@ -39,9 +43,16 @@ public class DataAfpClienteController {
     public String createAfpData(@RequestBody DataAfpCliente dataAfpCliente) {
         var existente=idata.findByDni(dataAfpCliente.getDni());
         if (existente==null){
-            idata.save(dataAfpCliente);
-            LOGGER.info("Hizo la petición de add");
-            return "Data Agregada de forma exitosa";
+
+            var existeCliente=icliente.findByDni(dataAfpCliente.getDni());
+            if (existeCliente!=null){
+                idata.save(dataAfpCliente);
+                LOGGER.info("Hizo la petición de add");
+                return "Data Agregada de forma exitosa";
+            }
+            else {
+                return "Cliente no existe";
+            }
         }
         else{
             LOGGER.info("Data del cliente ya existe en el Sistema, no se completa la peticion");
